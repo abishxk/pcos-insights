@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PCOS Symptom Insights</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+</head>
+<body>
+  <div class="bg">
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4"
+        type="video/mp4"
+      />
+    </video>
+  </div>
+
+  <div class="page">
+    {% include "_nav.html" %}
+
+    <!-- 2) Hero -->
+    <main class="hero">
+      <div class="trust anim" style="--d:0.05s">
+        <span class="avatar a1"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i></span>
+        <span class="avatar a2"><i class="fa-solid fa-dna" aria-hidden="true"></i></span>
+        <span class="avatar a3"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+        <a class="trust-pill" href="https://www.kaggle.com/code/csanskriti/smart-pcos-detection-syatem/input?select=PCOS_infertility.csv" target="_blank" rel="noopener noreferrer">Trained on real patient data from Kaggle</a>
+      </div>
+
+      <h1 class="headline anim">
+        <span>1 In 10 Women</span>
+        <span>Live With PCOS</span>
+      </h1>
+
+      <p class="subhead anim" style="--d:0.28s">
+        Most cases go undiagnosed for years. Answer a short symptom check to
+        see how your answers compare with real patient data.
+      </p>
+
+      <a class="cta anim" style="--d:0.4s" href="/app">Start My Test</a>
+    </main>
+
+    <!-- 3) Stats footer -->
+    <footer class="stats">
+      <div class="stat anim" style="--d:0.5s">
+        <i class="stat-icon fa-solid fa-venus" aria-hidden="true"></i>
+        <span class="stat-value" data-target="10" data-suffix="%" data-decimals="0">0</span>
+        <span class="stat-label">Women Affected<br>(WHO)</span>
+      </div>
+      <div class="stat anim" style="--d:0.58s">
+        <i class="stat-icon fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <span class="stat-value" data-target="70" data-suffix="%" data-decimals="0">0</span>
+        <span class="stat-label">Remain<br>Undiagnosed</span>
+      </div>
+      <div class="stat anim" style="--d:0.66s">
+        <i class="stat-icon fa-solid fa-clipboard-list" aria-hidden="true"></i>
+        <span class="stat-value" data-target="541" data-suffix="" data-decimals="0">0</span>
+        <span class="stat-label">Patient Records<br>Studied</span>
+      </div>
+      <div class="stat anim" style="--d:0.74s">
+        <i class="stat-icon fa-solid fa-bullseye" aria-hidden="true"></i>
+        <span class="stat-value" data-target="86" data-suffix="%" data-decimals="0">0</span>
+        <span class="stat-label">Screening<br>Accuracy</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='landing.js') }}"></script>
+</body>
+</html>

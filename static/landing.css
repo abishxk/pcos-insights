@@ -1,0 +1,359 @@
+/* Intelligence Designed To Evolve - landing page
+   Static HTML + CSS + vanilla JS. Single viewport, full-bleed video bg. */
+
+:root {
+  --bg: #000000;
+  --text: #ffffff;
+  --muted: #8e8e8e;
+  --trust-bg: #28282a;
+  --trust-border: rgba(255, 255, 255, 0.4);
+  --trust-text: #c4c2c3;
+  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "BubbledotICG-FinePos", "Geist Pixel Circle", monospace;
+}
+
+@font-face {
+  font-family: "Geist Pixel Circle";
+  src: url("fonts/GeistPixel-Circle.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img { max-width: 100%; display: block; }
+
+/* ---- background video ------------------------------------------- */
+
+.bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  z-index: 0;
+}
+/* rose/red wash: recolors the footage into a PCOS-appropriate palette
+   without needing a different source video */
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, rgba(56, 4, 22, 0.32), rgba(18, 2, 8, 0.68));
+  mix-blend-mode: multiply;
+}
+.bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 0;
+  filter: grayscale(1) sepia(1) hue-rotate(310deg) saturate(2.4) brightness(0.95);
+}
+
+/* ---- page shell ---------------------------------------------------- */
+
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px);
+}
+
+.hero,
+.stats { z-index: 1; }
+
+/* Top nav (header pill + mobile burger/menu) lives in static/nav.css and
+   templates/_nav.html now, shared with every page -- not styled here. */
+
+/* ================================================================
+   2) HERO
+   ================================================================ */
+
+.hero {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* trust row */
+.trust {
+  --trust-size: clamp(36px, 4.5vw, 42px);
+  --d: 0.05s;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: clamp(16px, 2.5vh, 26px);
+}
+
+.avatar {
+  position: relative;
+  width: var(--trust-size);
+  height: var(--trust-size);
+  border-radius: 50%;
+  background: var(--trust-bg);
+  border: 1px solid var(--trust-border);
+  padding: 5px;
+  display: grid;
+  place-items: center;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.avatar::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  background: #fff;
+  border-radius: 50%;
+}
+.avatar i {
+  position: relative;
+  z-index: 1;
+  color: #111;
+  font-size: calc(var(--trust-size) * 0.34);
+  line-height: 1;
+}
+.avatar.a1 { z-index: 1; }
+.avatar.a2 { z-index: 2; margin-left: calc(var(--trust-size) * -0.42); }
+.avatar.a3 { z-index: 4; margin-left: calc(var(--trust-size) * -0.42); }
+.trust:hover .a1 { transform: translateY(-2px); }
+.trust:hover .a2 { transform: translateY(-4px); }
+.trust:hover .a3 { transform: translateY(-2px); }
+
+.trust-pill {
+  position: relative;
+  z-index: 3;
+  height: var(--trust-size);
+  display: inline-flex;
+  align-items: center;
+  margin-left: calc(var(--trust-size) * -0.42);
+  padding-left: calc(var(--trust-size) * 0.58);
+  padding-right: clamp(12px, 1.6vw, 16px);
+  background: var(--trust-bg);
+  border: 1px solid var(--trust-border);
+  border-radius: 999px;
+  color: var(--trust-text);
+  font-weight: 500;
+  font-size: clamp(12px, 1.4vw, 13.5px);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.trust-pill:hover { border-color: rgba(255, 255, 255, 0.7); color: var(--text); }
+.trust-pill:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* headline */
+.headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: #fff;
+  font-size: clamp(28px, 6.2vw, 80px);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  overflow: hidden;
+}
+.headline.anim {           /* parent carries the class but does not reveal */
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: none;
+}
+.headline span {
+  display: block;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-14px);
+  animation: headlineFade 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.headline span:nth-child(1) { animation-delay: 0.12s; }
+.headline span:nth-child(2) { animation-delay: 0.3s; }
+
+/* subhead */
+.subhead {
+  max-width: min(500px, 92%);
+  margin: clamp(14px, 2vh, 20px) auto 0;
+  font-size: clamp(calc(13.5px + 2pt), calc(1.55vw + 2pt), calc(16.5px + 2pt));
+  color: #d0d0d0;
+  opacity: 0.8;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+/* CTA */
+.cta {
+  margin-top: clamp(18px, 2.6vh, 28px);
+  display: inline-block;
+  padding: clamp(11px, 1.6vh, 13px) clamp(22px, 3vw, 28px);
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: clamp(13.5px, 1.5vw, 14.5px);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 0 22px rgba(255, 255, 255, 0.32),
+    0 0 44px rgba(255, 255, 255, 0.12);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+}
+.cta:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 0 30px rgba(255, 255, 255, 0.46),
+    0 0 62px rgba(255, 255, 255, 0.2);
+}
+.cta.anim { animation-name: revealPulse; --d: 0.4s; }
+
+/* ================================================================
+   3) STATS FOOTER
+   ================================================================ */
+
+.stats {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 920px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(12px, 2vw, 24px);
+}
+.stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px 0;
+  text-align: center;
+}
+/* a quiet vertical rule between columns instead of the icon carrying all
+   the visual separation on its own */
+.stat:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: clamp(-6px, -1vw, -12px);
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.stat-icon {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.stat:hover .stat-icon { color: #fff; transform: translateY(-1px); }
+.stat-value {
+  font-family: var(--font-sans);
+  color: #fff;
+  font-size: clamp(19px, 2.4vw, 28px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  color: var(--muted);
+  font-size: clamp(11px, 1.2vw, 12.5px);
+  line-height: 1.35;
+}
+
+/* ================================================================
+   Entrance animation -- .anim / @keyframes reveal now live in nav.css
+   (shared across every page); this file only adds the CTA's pulse variant
+   ================================================================ */
+
+@keyframes revealPulse {
+  0%   { opacity: 0; transform: translateY(-22px) scale(0.98); filter: blur(6px); }
+  60%  { opacity: 1; transform: translateY(2px) scale(1.015); filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes headlineFade {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .headline span { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .headline { color: #fff; }
+}
+
+/* ================================================================
+   Mobile  (<= 720px)
+   ================================================================ */
+
+@media (max-width: 720px) {
+  /* space-between stretches the gaps to fill 100% of the leftover height,
+     so on a tall phone the stats footer ends up pinned to the very bottom
+     edge (cramped against the safe area / browser chrome) even though the
+     two gaps are technically equal. Cap the gap instead and center the
+     whole hero/stats group: extra height is then shared equally above and
+     below the group, and the footer always keeps real breathing room
+     instead of hugging the screen edge. */
+  .page { justify-content: center; gap: clamp(18px, 4vh, 40px); }
+  .hero { flex: none; }
+  /* .page's own gap now spaces every child evenly (header-hero and
+     hero-stats alike); drop the nav's own margin so header-hero isn't
+     doubly spaced on top of it */
+  .header { margin-bottom: 0; }
+
+  .headline { letter-spacing: -0.08em; line-height: 1.05; }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(14px, 3.4vw, 22px) clamp(12px, 4vw, 24px);
+    max-width: 420px;
+  }
+  /* the divider only makes sense between side-by-side columns; on a 2-up
+     grid that's just the right-hand item of each row */
+  .stat:not(:first-child)::before { display: none; }
+  .stat:nth-child(2)::before,
+  .stat:nth-child(4)::before {
+    display: block;
+    left: clamp(-8px, -2vw, -12px);
+  }
+}
+
+/* ================================================================
+   Fine breakpoints
+   ================================================================ */
+
+@media (max-width: 420px) {
+  .trust { --trust-size: 34px; }
+  .trust-pill { font-size: 12px; }
+  .headline { letter-spacing: -0.09em; line-height: 1.04; }
+}
+
+@media (max-height: 700px) {
+  .trust { margin-bottom: clamp(10px, 2vh, 16px); }
+  .subhead { margin-top: 10px; }
+  .cta { margin-top: 14px; }
+}

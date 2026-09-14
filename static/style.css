@@ -1,0 +1,1095 @@
+/* PCOS Symptom Check - dark UI, matched to the landing page.
+   Video background, Inter for UI, BubbledotICG-FinePos for the title + result
+   figure, white-glow primary button, monochrome controls. Wide card: form on
+   the left; "About the data and model" then "Your estimate" stacked on the
+   right, both always visible. Panes scroll internally on short screens. */
+
+:root {
+  --bg: #000000;
+  --text: #f3f4f4;
+  --text-dim: #b1b8b5;
+  --text-faint: #8a938f;
+
+  --panel: rgba(17, 19, 21, 0.82);
+  --panel-2: rgba(255, 255, 255, 0.028);
+  --line: rgba(255, 255, 255, 0.10);
+  --line-2: rgba(255, 255, 255, 0.16);
+
+  --field-bg: rgba(255, 255, 255, 0.05);
+  --pill-dark: #28282a;
+  --btn-track: #3a3a3e;
+
+  --white-glow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 0 22px rgba(255, 255, 255, 0.30),
+    0 0 44px rgba(255, 255, 255, 0.12);
+  --white-glow-strong:
+    0 0 0 1px rgba(255, 255, 255, 0.26),
+    0 0 30px rgba(255, 255, 255, 0.45),
+    0 0 62px rgba(255, 255, 255, 0.20);
+  --ring: 0 0 0 3px rgba(255, 255, 255, 0.22);
+
+  --good: #79d0c0;
+  --warn: #e6c983;
+  --bad: #f0a58f;
+
+  --r-control: 10px;
+  --r-card: 18px;
+
+  /* strong curves from the animate skill; JS refines --cap-h to the exact
+     space under the header */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --cap-h: calc(100dvh - 132px);
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "BubbledotICG-FinePos", "Geist Pixel Circle", monospace;
+}
+
+@font-face {
+  font-family: "Geist Pixel Circle";
+  src: url("fonts/GeistPixel-Circle.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; display: block; }
+
+/* ---- background video ---------------------------------------------- */
+
+.bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  z-index: 0;
+}
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, rgba(56, 4, 22, 0.32), rgba(18, 2, 8, 0.7));
+  mix-blend-mode: multiply;
+}
+.bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  filter: grayscale(1) sepia(1) hue-rotate(310deg) saturate(2.4) brightness(0.95);
+}
+
+/* ---- shell ------------------------------------------------------- */
+
+.shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding: clamp(12px, 1.8vh, 20px) clamp(10px, 1.4vw, 18px);
+}
+
+/* ================================================================
+   Card
+   ================================================================ */
+
+.app {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  width: min(1180px, 92vw);
+  max-height: var(--cap-h);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+}
+
+/* one view at a time: the form, then the estimate */
+.view {
+  padding: clamp(22px, 3vw, 30px);
+  display: flex;
+  flex-direction: column;
+}
+.view[hidden] { display: none; }
+/* the result view's content length varies with the band (a "higher"
+   result reads noticeably longer than "lower"), so give it a bit less
+   outer padding to keep more of that variance from tipping the card into
+   needing its own scrollbar */
+#resultView { padding: clamp(18px, 2.6vw, 26px); }
+
+/* the estimate view gets a wider card and a two-column read-out */
+.card.result-mode { width: min(1180px, 92vw); }
+
+/* output: a full-width hero card (the number) over a two-column stack of
+   supporting cards, each block a self-contained panel like the form groups */
+#result .shown { display: grid; grid-template-columns: 1fr; gap: 11px 20px; align-items: start; }
+.card.result-mode #result .shown { grid-template-columns: 1fr 1fr; }
+.card.result-mode #result .shown > .hero { grid-column: 1 / -1; }
+
+.col-a, .col-b { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
+
+@media (max-width: 900px) {
+  .card.result-mode #result .shown { grid-template-columns: 1fr; }
+}
+
+.masthead { margin-bottom: 11px; }
+.mh-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 11px;
+}
+.mh-row .ghost-btn { flex-shrink: 0; margin: 0; align-self: flex-start; }
+@media (max-width: 560px) {
+  .mh-row { flex-direction: column; }
+}
+.masthead h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.masthead p {
+  margin: 5px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+form { display: flex; flex-direction: column; gap: 18px; }
+
+/* two-column form body, divided; collapses to one column under 900px */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px 48px;
+  align-items: start;
+}
+.form-col { display: flex; flex-direction: column; gap: 14px; }
+.form-col:first-child { position: relative; }
+.form-col:first-child::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  right: -24px;
+  width: 1px;
+  background: var(--line);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 15px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+.glabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.hint {
+  margin: -2px 0 2px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.cluster { display: flex; flex-direction: column; gap: 8px; }
+.cluster + .cluster { margin-top: 4px; }
+.clabel { font-size: 0.75rem; font-weight: 500; color: var(--text-dim); }
+
+.nums {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 14px;
+}
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 0.73rem; color: var(--text-dim); font-weight: 500; }
+
+input[type="number"] {
+  font: inherit;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-control);
+  padding: 7px 10px;
+  width: 100%;
+}
+input[type="number"]:hover { border-color: rgba(255, 255, 255, 0.28); }
+input[type="number"]:focus-visible {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: var(--ring);
+  background: rgba(255, 255, 255, 0.07);
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { margin: 0; }
+
+.bmi-line { font-size: 0.76rem; color: var(--text-dim); }
+.bmi-line b { color: #fff; font-weight: 600; }
+
+/* cycle segmented */
+.cycle-row { display: flex; align-items: center; gap: 16px; }
+.cycle-row .q { font-size: 0.82rem; color: var(--text-dim); font-weight: 500; }
+
+.segmented {
+  display: inline-flex;
+  flex: none;
+  gap: 3px;
+  padding: 3px;
+  background: var(--pill-dark);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-control);
+}
+.segmented input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.segmented label {
+  padding: 5px 13px;
+  border-radius: 7px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.segmented input:checked + label { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.segmented input:focus-visible + label { box-shadow: var(--ring); }
+
+/* symptom checklist -- selectable rows with a proper tick mark */
+.checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+.check input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.check .box {
+  position: relative;
+  flex: none;
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 5px;
+  background: var(--field-bg);
+}
+.check .box::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid #0a0a0a;
+  border-width: 0 2px 2px 0;
+  transform: rotate(35deg) scale(0);
+  transform-origin: 60% 50%;
+}
+.check:has(input:checked) { color: #fff; background: rgba(255, 255, 255, 0.06); border-color: var(--line); }
+.check:has(input:checked) .box { border-color: #fff; background: #fff; }
+.check:has(input:checked) .box::after { transform: rotate(35deg) scale(1); }
+.check:has(input:focus-visible) .box { box-shadow: var(--ring); }
+.check:active .box { transform: scale(0.92); }
+
+/* submit + error -------------------------------------------------
+   the button is also the form's progress bar: a dark grey track with
+   a white fill that grows left to right as the required answers are
+   given, and goes solid white ("ready") once they are all valid. */
+button.submit {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--btn-track);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  padding: 9px 20px;
+  align-self: center;
+  width: min(280px, 100%);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+.submit-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #fff;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+}
+.submit-label,
+button.submit .spinner { position: relative; z-index: 1; }
+/* label stays white on the dark track and flips to black over the
+   white fill, without JS tracking the fill edge */
+.submit-label { mix-blend-mode: difference; color: #fff; }
+
+button.submit.is-ready { box-shadow: var(--white-glow); border-color: rgba(255, 255, 255, 0.16); }
+button.submit:focus-visible { outline: none; box-shadow: var(--white-glow-strong); }
+button.submit:active { transform: scale(0.985); }
+button.submit.is-busy,
+button.submit[disabled] { cursor: progress; }
+
+.spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #000;
+  border-radius: 999px;
+}
+
+.form-error {
+  font-size: 0.8rem;
+  color: var(--bad);
+  background: rgba(240, 165, 143, 0.1);
+  border: 1px solid rgba(240, 165, 143, 0.35);
+  border-radius: var(--r-control);
+  padding: 9px 11px;
+}
+
+.privacy-note {
+  margin: -6px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+/* ---- secondary "ghost" buttons ------------------------------- */
+
+.ghost-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: var(--field-bg);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.ghost-btn:hover { color: #fff; border-color: rgba(255, 255, 255, 0.34); }
+.ghost-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.ghost-btn:active { transform: scale(0.98); }
+/* "Start another test" matches the "Check my result" button size + style */
+#restart {
+  align-self: center;
+  justify-content: center;
+  width: min(280px, 100%);
+  margin-top: 16px;
+  padding: 9px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--btn-track);
+  border-color: var(--line-2);
+}
+#restart:hover { color: #fff; background: #454549; }
+
+.gb-ico {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+/* ---- modal (native <dialog>) -------------------------------- */
+
+.modal {
+  width: min(900px, 94vw);
+  max-height: min(90vh, 840px);
+  margin: auto;
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-card);
+  box-shadow: 0 40px 110px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.modal:not([open]) { display: none; }
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.modal-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.modal-x {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--text-dim);
+  background: var(--field-bg);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.modal-x:hover { color: #fff; border-color: rgba(255, 255, 255, 0.34); }
+.modal-x:focus-visible { outline: none; box-shadow: var(--ring); }
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 30px;
+  align-content: start;
+}
+.modal-body > * { grid-column: 1 / -1; }
+.modal-body > .signals,
+.modal-body > .reading { grid-column: span 1; }
+@media (max-width: 680px) {
+  .modal-body { grid-template-columns: 1fr; }
+  .modal-body > * { grid-column: 1 / -1; }
+}
+.rlabel {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+
+/* middle: about / signals / reading -- each its own card, matching the
+   form groups and result cards elsewhere in the app */
+.about,
+.signals,
+.reading {
+  padding: 14px 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+.about > .rlabel,
+.signals > .rlabel,
+.reading > .rlabel { margin-bottom: 8px; }
+
+.about .lede,
+.est-intro .lede {
+  margin: 0;
+  font-size: 0.77rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.about dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+.about dt {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.about dd { margin: 2px 0 0; font-size: 0.76rem; color: var(--text-faint); line-height: 1.45; }
+
+/* "about this estimate": four numbered tiles instead of a plain list */
+.willshow-dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.est-tile {
+  position: relative;
+  padding: 14px 14px 13px 44px;
+  background: var(--field-bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-control);
+}
+.est-num {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+}
+.est-tile dt {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.est-tile dd { margin: 0; font-size: 0.76rem; color: var(--text-faint); line-height: 1.45; }
+
+.siglist { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.siglist li {
+  display: grid;
+  grid-template-columns: 1fr 54px auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+.sig-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.sig-bar > i {
+  display: block;
+  height: 100%;
+  width: var(--w, 0%);
+  background: #fff;
+  border-radius: 999px;
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.sig-val { color: var(--text-dim); font-variant-numeric: tabular-nums; font-size: 0.76rem; }
+.signals .note { margin: 8px 0 0; font-size: 0.72rem; color: var(--text-faint); line-height: 1.45; }
+
+.bandkey { margin: 0; display: grid; gap: 7px; }
+.bandkey div { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: start; }
+.bandkey dt { margin: 0; }
+.bandkey dd { margin: 0; font-size: 0.76rem; color: var(--text-faint); line-height: 1.4; }
+.tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+}
+.tag.lower    { color: var(--good); border-color: rgba(121, 208, 192, 0.4); background: rgba(121, 208, 192, 0.1); }
+.tag.moderate { color: var(--warn); border-color: rgba(230, 201, 131, 0.4); background: rgba(230, 201, 131, 0.1); }
+.tag.higher   { color: var(--bad);  border-color: rgba(240, 165, 143, 0.42); background: rgba(240, 165, 143, 0.12); }
+
+.hero {
+  padding: 13px 16px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+
+.score { display: flex; align-items: baseline; gap: 10px; margin: 0; }
+.score .pct {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 2.6rem;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  white-space: nowrap;
+}
+.badge.lower    { color: var(--good); border-color: rgba(121, 208, 192, 0.4); background: rgba(121, 208, 192, 0.1); }
+.badge.moderate { color: var(--warn); border-color: rgba(230, 201, 131, 0.4); background: rgba(230, 201, 131, 0.1); }
+.badge.higher   { color: var(--bad);  border-color: rgba(240, 165, 143, 0.42); background: rgba(240, 165, 143, 0.12); }
+
+.meter-wrap { position: relative; margin-top: 8px; }
+.meter {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.meter > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: #fff;
+  border-radius: 999px;
+}
+.meter-mark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: var(--at, 33%);
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(10, 10, 10, 0.55);
+  border-radius: 1px;
+}
+.meter-scale {
+  position: relative;
+  height: 13px;
+  margin-top: 4px;
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+.meter-scale .lo { position: absolute; left: 0; }
+.meter-scale .hi { position: absolute; right: 0; }
+.meter-scale .avg {
+  position: absolute;
+  left: var(--at, 33%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.interp { margin: 8px 0 0; font-size: 0.82rem; color: var(--text-dim); line-height: 1.4; }
+.interp b { color: #fff; font-weight: 600; }
+
+/* result: each supporting fact gets its own card, matching the form groups */
+.rblock {
+  padding: 11px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+.rblock > .rlabel { margin-bottom: 6px; }
+.rblock > p { margin: 0; font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+.rblock .fnote { margin: 7px 0 0; font-size: 0.74rem; color: var(--text-faint); line-height: 1.45; }
+
+.compare { display: grid; gap: 9px; }
+.cmp-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 5px 10px; }
+.cmp-label { font-size: 0.75rem; color: var(--text-faint); }
+.cmp-val { font-size: 0.75rem; color: var(--text-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmp-row.mine .cmp-val { color: #fff; font-weight: 600; }
+.cmp-bar {
+  grid-column: 1 / -1;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.cmp-bar > i {
+  display: block;
+  height: 100%;
+  width: var(--w, 0%);
+  background: var(--text-faint);
+  border-radius: 999px;
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.cmp-row.mine .cmp-bar > i { background: #fff; }
+
+.bmi-read { margin: 0 0 5px; font-size: 0.86rem; color: var(--text); }
+.bmi-read b { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
+.bmi-cat { color: var(--text-dim); font-size: 0.8rem; }
+
+.factors .rlabel { margin-bottom: 8px; }
+.factors ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.factors li {
+  display: grid;
+  grid-template-columns: 5px 1fr auto;
+  align-items: baseline;
+  column-gap: 8px;
+}
+.factors li::before {
+  content: "";
+  align-self: center;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: #fff;
+}
+.f-name { font-size: 0.82rem; color: var(--text); }
+.f-lift { font-size: 0.73rem; color: var(--text-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.factors .none { margin: 0; font-size: 0.82rem; color: var(--text-faint); }
+
+.view-result .disc,
+#resultView .disc {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ================================================================
+   Motion  (ships with reduced-motion + hover gating)
+   ================================================================ */
+
+@keyframes cardIn    { from { opacity: 0; transform: translateY(-22px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes revealFast { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes resultIn  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes spin      { to { transform: rotate(360deg); } }
+@keyframes sigGrow   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn    { from { opacity: 0; transform: scale(0.86); } to { opacity: 1; transform: scale(1); } }
+@keyframes zoomOut   { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* .anim / @keyframes reveal now live in nav.css (shared across every
+     page) -- .card's own page-load entrance uses that class directly
+     (see index.html) instead of a separate animation here.
+     Both .shell (this page) and .doc-panel (the About page) already carry
+     a static backdrop-filter: blur(18px) glass-panel effect; animating a
+     second filter:blur() on top of that for every .anim element on the
+     page (the card, masthead, each form group, submit, ...) is expensive
+     to composite and is what made the page load feel laggy. Swap in the
+     same motion minus the blur -- same fix already applied to /data's
+     scroll-reveal for the same reason.
+     filter: none is required here, not just the animation-name swap --
+     .anim's own base rule sets a static filter: blur(6px), and only the
+     `reveal` keyframe's `to` state ever clears it back to blur(0). Since
+     `revealFast` never mentions filter at all, without this line every
+     .anim element here would animate in and then stay permanently blurred. */
+  .shell .anim { animation-name: revealFast; filter: none; }
+
+  /* "about this estimate" tiles pop in on open, and shrink back out
+     when the modal is dismissed (see .modal.closing below) */
+  .anim-zoom {
+    opacity: 0;
+    transform: scale(0.86);
+    animation: zoomIn 0.38s var(--ease-out) forwards;
+    animation-delay: calc(var(--i, 0) * 70ms + 120ms);
+  }
+  .modal.closing .anim-zoom {
+    animation: zoomOut 0.16s var(--ease-out) forwards;
+    animation-delay: 0s;
+  }
+
+  #result .shown { animation: resultIn 0.28s var(--ease-out) both; }
+
+  .spinner { animation: spin 0.7s linear infinite; }
+  .meter > i { transition: transform 0.6s var(--ease-out); }
+  .meter-mark { opacity: 0; animation: fadeIn 0.3s ease 0.6s forwards; }
+  .sig-bar > i { animation: sigGrow 0.7s var(--ease-out) 0.55s both; }
+  .cmp-row .cmp-bar > i { animation: sigGrow 0.6s var(--ease-out) both; }
+  .cmp-row:nth-child(1) .cmp-bar > i { animation-delay: 0.2s; }
+  .cmp-row:nth-child(2) .cmp-bar > i { animation-delay: 0.34s; }
+
+  .est-tile { transition: transform 0.16s var(--ease-out), border-color 0.16s ease; }
+  .doc-card { transition: background 0.2s ease, transform 0.2s var(--ease-out), box-shadow 0.25s ease; }
+  .scroll-progress > i { transition: transform 0.12s linear; }
+  input[type="number"] { transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+  .check { transition: color 0.14s var(--ease-out), background 0.14s var(--ease-out), border-color 0.14s var(--ease-out); }
+  .check .box, .check .box::after { transition: border-color 0.14s var(--ease-out), background 0.14s var(--ease-out), transform 0.14s var(--ease-out), box-shadow 0.14s var(--ease-out); }
+  .segmented input:checked + label { transition: background 0.14s var(--ease-out), color 0.14s var(--ease-out); }
+  button.submit { transition: transform 0.2s var(--ease-out), box-shadow 0.25s ease, border-color 0.25s ease; }
+  .submit-fill { transition: transform 0.4s var(--ease-out); }
+  .ghost-btn, .modal-x { transition: color 0.16s ease, border-color 0.16s ease, transform 0.16s var(--ease-out); }
+  #restart {
+    transition: color 0.16s ease, background 0.16s ease, border-color 0.16s ease,
+      transform 0.2s var(--ease-out), box-shadow 0.25s ease;
+  }
+
+  #resultView:not([hidden]) { animation: cardIn 0.4s var(--ease-out) both; }
+
+  .modal {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+    transition:
+      opacity 0.22s var(--ease-out),
+      transform 0.22s var(--ease-out),
+      overlay 0.22s allow-discrete,
+      display 0.22s allow-discrete;
+  }
+  .modal[open] { opacity: 1; transform: none; }
+  .modal::backdrop {
+    opacity: 0;
+    transition: opacity 0.22s var(--ease-out), overlay 0.22s allow-discrete, display 0.22s allow-discrete;
+  }
+  .modal[open]::backdrop { opacity: 1; }
+
+  @starting-style {
+    .modal[open] { opacity: 0; transform: translateY(8px) scale(0.985); }
+    .modal[open]::backdrop { opacity: 0; }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .check:hover { color: var(--text); background: rgba(255, 255, 255, 0.035); }
+  .check:hover .box { border-color: rgba(255, 255, 255, 0.4); }
+  button.submit.is-ready:hover { transform: translateY(-2px) scale(1.01); box-shadow: var(--white-glow-strong); }
+  #restart:hover {
+    color: #000;
+    background: #fff;
+    border-color: transparent;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--white-glow-strong);
+  }
+  .est-tile:hover { border-color: rgba(255, 255, 255, 0.3); transform: scale(1.015); }
+  .doc-card:hover { background: rgba(255, 255, 255, 0.04); transform: scale(1.015); box-shadow: var(--white-glow-strong); }
+}
+
+/* Mobile only: the section currently scrolled to gets the same glow the
+   "ready" submit button has (data.js toggles this via the on-this-page
+   rail's own scroll tracking). Desktop/PC has a real cursor, so it gets
+   the equivalent as a hover animation instead (.doc-card:hover, above,
+   already gated to hover-capable/fine-pointer devices) -- scroll-tracked
+   glow would be redundant with a mouse and just distracting there. */
+@media (max-width: 720px) {
+  .doc-card.is-current { background: rgba(255, 255, 255, 0.04); transform: scale(1.015); box-shadow: var(--white-glow); }
+  .doc-card.is-current:hover { box-shadow: var(--white-glow-strong); }
+}
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+
+@media (max-width: 900px) {
+  body { overflow: auto; height: auto; }
+  .bg { position: fixed; }
+  .shell { height: auto; min-height: 100dvh; overflow: visible; }
+
+  .app { display: block; min-height: 0; }
+  .card {
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    backdrop-filter: blur(10px) saturate(1.05);
+    -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  }
+  .view { padding: 24px 20px 28px; }
+  .form-grid { grid-template-columns: 1fr; gap: 22px; }
+  .form-col:first-child::after { display: none; }
+}
+
+@media (max-width: 560px) {
+  .checks { grid-template-columns: 1fr; }
+  .bandkey div { grid-template-columns: 64px 1fr; }
+  .about dl,
+  .willshow-dl { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .nums { grid-template-columns: 1fr; }
+  .cycle-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+/* ================================================================
+   /data -- long-form content page, scrolls normally instead of being
+   capped to one viewport like the form/result page
+   ================================================================ */
+
+html:has(body.data-page) { scroll-behavior: smooth; }
+body.data-page { overflow: auto; height: auto; }
+body.data-page .shell { height: auto; min-height: 100dvh; overflow: visible; display: block; }
+
+/* Top nav (header pill, icon-only below 720px) lives in static/nav.css and
+   templates/_nav.html now, shared with every page -- not styled here. */
+
+/* thin reading-progress bar pinned to the very top of the viewport */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.08);
+}
+.scroll-progress > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+
+.doc {
+  width: min(1080px, 92vw);
+  margin: 0 auto;
+  padding: clamp(10px, 2vh, 20px) 0 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+/* that top padding stacks on top of the nav's own margin-bottom -- fine
+   on desktop (deliberate extra breathing room), but on mobile it's what
+   made /data sit further from the nav than /app, which has no equivalent
+   padding of its own. Drop it there so both rely on the nav's margin alone. */
+@media (max-width: 720px) {
+  .doc { padding-top: 0; }
+}
+
+/* one panel for the whole page (single backdrop-filter instead of one per
+   section -- cheaper to composite and the source of the reveal-animation
+   stutter this replaced); sections inside divide with a plain border-top
+   instead of each being its own floating card */
+.doc-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+  padding: 0 34px;
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-intro { padding: 26px 0 28px; }
+.doc-intro .rlabel { color: var(--text-dim); }
+.doc-intro h1 {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.6vw, 2.6rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+}
+.doc-intro .lede { margin: 12px 0 0; font-size: 1.05rem; color: var(--text-dim); line-height: 1.6; max-width: 46ch; }
+
+.doc-card {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: start;
+  gap: 6px 32px;
+  margin: 0 -16px;
+  padding: 28px 16px;
+  border-top: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+.doc-card > .rlabel { margin-bottom: 0; padding-top: 3px; font-size: 0.72rem; }
+.doc-card-body p { margin: 0; font-size: 1.05rem; color: var(--text-dim); line-height: 1.7; }
+.doc-card-body p + p { margin-top: 10px; }
+.doc-card code {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--text);
+  background: var(--field-bg);
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.doc-card-body .fnote { margin: 12px 0 0; font-size: 0.85rem; color: var(--text-faint); line-height: 1.55; }
+
+.doc-disclaimer { border-top-color: rgba(230, 201, 131, 0.3); }
+.doc-disclaimer ul {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.doc-disclaimer li::marker { color: var(--warn); }
+
+@media (max-width: 700px) {
+  .doc-card { grid-template-columns: 1fr; gap: 12px; }
+  .doc-card > .rlabel { padding-top: 0; }
+}
+
+/* scroll-triggered reveal: JS toggles .is-visible via IntersectionObserver
+   (see data.js); falls back to fully visible with no JS / reduced motion */
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* opacity + transform only, no filter: .doc-panel already carries a
+     static backdrop-filter: blur(18px) glass-panel effect, and animating a
+     second filter:blur on top of that every frame is expensive enough to
+     visibly stutter */
+  .js-reveal-ready .reveal {
+    opacity: 0;
+    transform: translateY(-22px) scale(0.98);
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  .js-reveal-ready .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .doc-panel { padding: 0 20px; }
+  .doc-card { margin: 0 -12px; padding: 20px 12px; }
+  .doc-card-body p { font-size: 0.95rem; }
+}

@@ -1,0 +1,27 @@
+<!-- Shared top nav, included on every page. Pass `active_nav` from the
+     route ("home" / "tool" / "about") to mark the current page. Styled by
+     static/nav.css. Each link carries both an icon and a text label; below
+     720px nav.css hides the text and the pill becomes an icon-only mini
+     bar instead of collapsing into a burger menu -- so every link stays a
+     single tap away, no overlay/panel involved. Needs Font Awesome (the
+     "all.min.css" CDN link) loaded on the page for the icons to render. -->
+<header class="header">
+  <nav class="nav" aria-label="Primary">
+    <a class="nav-link{{ ' is-active' if active_nav == 'home' else '' }}" href="/"{% if active_nav == 'home' %} aria-current="page"{% endif %} aria-label="Home">
+      <i class="nav-ico fa-solid fa-house" aria-hidden="true"></i>
+      <span class="nav-text">Home</span>
+    </a>
+    <a class="nav-link{{ ' is-active' if active_nav == 'tool' else '' }}" href="/app"{% if active_nav == 'tool' %} aria-current="page"{% endif %} aria-label="Symptom Check">
+      <i class="nav-ico fa-solid fa-stethoscope" aria-hidden="true"></i>
+      <span class="nav-text">Symptom Check</span>
+    </a>
+    <a class="nav-link{{ ' is-active' if active_nav == 'about' else '' }}" href="/data"{% if active_nav == 'about' %} aria-current="page"{% endif %} aria-label="About">
+      <i class="nav-ico fa-solid fa-circle-info" aria-hidden="true"></i>
+      <span class="nav-text">About</span>
+    </a>
+    <a class="nav-link" href="https://in.linkedin.com/in/abishek-sam-t-a0657a24b" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+      <i class="nav-ico fa-brands fa-linkedin-in" aria-hidden="true"></i>
+      <span class="nav-text">LinkedIn</span>
+    </a>
+  </nav>
+</header>

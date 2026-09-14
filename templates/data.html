@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About the Data and Model</title>
+
+  <script>
+    // Skip the nav's entrance animation (nav.css's navSlideDown) when it
+    // would just be replaying motion that already happened:
+    //  - /app <-> /data: same nav position on both, nothing to settle into.
+    //  - landing -> here, on mobile: landing.js already glides the nav up
+    //    into this exact spot before navigating away, so playing the
+    //    fade-in again here would be a second, redundant entrance right
+    //    after that glide. Desktop has no such pre-navigation glide, so
+    //    it keeps the normal entrance arriving from landing.
+    // Runs before first paint, so there's no flash of the animated state.
+    (function () {
+      try {
+        var ref = new URL(document.referrer);
+        if (ref.origin !== location.origin) return;
+        var fromAppOrData = ref.pathname === "/app" || ref.pathname === "/data";
+        var fromLandingMobile = ref.pathname === "/" && window.innerWidth <= 720;
+        if (fromAppOrData || fromLandingMobile) {
+          document.documentElement.classList.add("no-nav-anim");
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos" rel="stylesheet">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="data-page">
+  <div class="bg">
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4"
+        type="video/mp4"
+      />
+    </video>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true"><i id="scrollFill"></i></div>
+
+  <div class="shell">
+    {% include "_nav.html" %}
+
+    <div class="doc">
+      <div class="doc-panel">
+        <div class="doc-intro reveal">
+          <span class="rlabel">About</span>
+          <h1>About the data and model</h1>
+          <p class="lede">
+            What this tool is built on, how it was trained, and what it can and
+            cannot tell you.
+          </p>
+        </div>
+
+        <section class="doc-card reveal" id="pcos">
+          <span class="rlabel">What is PCOS</span>
+          <div class="doc-card-body">
+            <p>
+              Polycystic ovary syndrome is a disorder involving infrequent,
+              irregular or prolonged menstrual periods, and often excess male
+              hormone (androgen) levels. The ovaries develop numerous small
+              collections of fluid, called follicles, and may fail to regularly
+              release eggs.
+            </p>
+          </div>
+        </section>
+
+        <section class="doc-card reveal" id="dataset">
+          <span class="rlabel">The dataset</span>
+          <div class="doc-card-body">
+            <p>
+              {{ meta.n_samples }} patient records collected from 10 different
+              hospitals across Kerala, India, covering the physical and clinical
+              parameters used to determine PCOS and related infertility issues.
+              Source file: <code>PCOS_data_without_infertility.xlsx</code>.
+              {{ base_rate }}% of the recorded patients had PCOS.
+            </p>
+            <p class="fnote">
+              This app's self-check uses a 13-field subset of that data, limited
+              to answers a person can report themselves, without a scan or blood
+              work.
+            </p>
+          </div>
+        </section>
+
+        <section class="doc-card reveal" id="model">
+          <span class="rlabel">The model</span>
+          <div class="doc-card-body">
+            <p>
+              K-Nearest Neighbours, looking at the {{ meta.best_params.n_neighbors }}
+              most similar recorded patients to produce an estimate. It is a
+              similarity match, not a rule-based diagnosis. On a held-out test
+              split it reached {{ (meta.metrics.test_accuracy * 100) | round | int }}%
+              accuracy, ROC-AUC {{ meta.metrics.test_roc_auc }}.
+            </p>
+          </div>
+        </section>
+
+        <section class="doc-card reveal" id="predictor">
+          <span class="rlabel">The predictor</span>
+          <div class="doc-card-body">
+            <p>
+              The self-check on this site turns your answers into the same 13
+              fields the model was trained on, finds the most similar patients in
+              the data, and reports what share of them had PCOS. It is a
+              screening estimate built from patterns in one dataset, not a
+              clinical assessment of you.
+            </p>
+          </div>
+        </section>
+
+        <section class="doc-card doc-disclaimer reveal" id="disclaimers">
+          <span class="rlabel">Disclaimers</span>
+          <div class="doc-card-body">
+            <ul>
+              <li>This tool is for general education only and is not a medical device.</li>
+              <li>It does not diagnose PCOS or any other condition, and is not a substitute for professional medical advice, examination, imaging or blood work.</li>
+              <li>Always consult a qualified doctor about your symptoms, test results and treatment.</li>
+              <li>Estimates are based on patterns in one published dataset and may not reflect your individual situation.</li>
+              <li>Your answers are used only to compute your result and are not stored anywhere.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='landing.js') }}"></script>
+  <script src="{{ url_for('static', filename='data.js') }}"></script>
+</body>
+</html>
