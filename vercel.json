@@ -1,12 +1,12 @@
 {
   "builds": [
+    { "src": "static/**", "use": "@vercel/static" },
     {
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
         "includeFiles": [
           "templates/**",
-          "static/**",
           "models/**",
           "pcos/**",
           "PCOS_data_without_infertility.xlsx"
@@ -15,6 +15,7 @@
     }
   ],
   "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "app.py" }
   ]
 }
