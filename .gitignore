@@ -6,3 +6,16 @@ env/
 .env
 *.egg-info/
 .ipynb_checkpoints/
+
+# Claude Code project-local tooling, not app code
+.agents/
+skills-lock.json
+
+# reference/scratch notebook, not part of the maintained pipeline
+smart-pcos-detection-syatem.ipynb
+
+# figures/ is regenerated with `python PCOS.py`, not worth versioning.
+# models/ IS versioned (not ignored): Vercel's filesystem is read-only at
+# runtime, so app.py's auto-train-on-missing-model fallback can't write
+# there -- the trained model has to already exist in the deploy.
+figures/
