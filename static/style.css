@@ -4,6 +4,28 @@
    the left; "About the data and model" then "Your estimate" stacked on the
    right, both always visible. Panes scroll internally on short screens. */
 
+/* Native cross-document view transitions for /app <-> /data: the nav sits
+   in the exact same spot on both (see nav.css), so it should just stay put
+   while only the page content crossfades, instead of the whole page
+   (nav included) cutting instantly on a real full navigation. Scoped to
+   this stylesheet on purpose -- style.css only loads on /app and /data,
+   never on the landing page, which keeps its own hand-built glide
+   animations untouched (view transitions require BOTH documents in a
+   navigation to declare this, so it only ever activates between pages
+   that both load style.css). Unsupported browsers (no Chromium/Safari
+   view-transitions support) just ignore this and navigate normally --
+   pure progressive enhancement, nothing to fall back to by hand. */
+@view-transition {
+  navigation: auto;
+}
+
+/* Named so the browser treats it as one persistent element across the
+   transition (crossfading old-state into new-state) instead of lumping it
+   into the default root crossfade with the rest of the page -- since it's
+   pixel-identical on both /app and /data (bar which link is marked active),
+   that crossfade is imperceptible and it just reads as "staying put". */
+.header { view-transition-name: site-nav; }
+
 :root {
   --bg: #000000;
   --text: #f3f4f4;
