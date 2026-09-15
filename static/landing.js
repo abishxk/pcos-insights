@@ -201,7 +201,17 @@
   if (video) {
     var playPromise = video.play();
     if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(function () {});
+      playPromise.catch(function () {
+        // autoplay blocked at the OS/browser level (e.g. iOS Low Power
+        // Mode disables it even for muted video, regardless of the
+        // playsinline/autoplay attributes) -- the video would otherwise
+        // sit there showing its native "tap to play" overlay forever,
+        // unclickable, since .bg-video is deliberately pointer-events:
+        // none (taps need to pass through to the nav/content on top of
+        // it). .bg's own dark gradient wash already looks intentional
+        // without the video, so just hide it instead.
+        video.style.display = "none";
+      });
     }
   }
 })();
