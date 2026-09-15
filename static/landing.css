@@ -67,6 +67,11 @@ img { max-width: 100%; display: block; }
   z-index: 0;
   filter: grayscale(1) sepia(1) hue-rotate(310deg) saturate(2.4) brightness(0.95);
 }
+/* the global `img { display: block }` reset below is an author rule, so
+   it beats the browser's own default `[hidden] { display: none }` (author
+   always wins over UA styles) -- without this, .bg-fallback's [hidden]
+   attribute does nothing and it renders on top of the video regardless */
+.bg-fallback[hidden] { display: none; }
 
 /* ---- page shell ---------------------------------------------------- */
 
