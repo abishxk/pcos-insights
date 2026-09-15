@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PCOS Symptom Insights</title>
 
+  <!-- nav.css first and ahead of the third-party font/icon links below:
+       it's same-origin (no separate DNS/TLS handshake), CDN-served, and
+       the nav shouldn't wait behind those other origins to be discovered
+       -- that queueing was widening the moment the nav renders unstyled
+       before this stylesheet applies. -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
+
   <script>
     // Skip the nav's entrance animation (nav.css's navSlideDown) when it
     // would just be replaying motion that already happened:
@@ -37,7 +44,6 @@
         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='nav.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
