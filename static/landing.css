@@ -56,7 +56,8 @@ img { max-width: 100%; display: block; }
   background: radial-gradient(120% 90% at 50% 40%, rgba(56, 4, 22, 0.32), rgba(18, 2, 8, 0.68));
   mix-blend-mode: multiply;
 }
-.bg-video {
+.bg-video,
+.bg-fallback {
   position: absolute;
   inset: 0;
   width: 100%;

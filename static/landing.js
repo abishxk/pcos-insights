@@ -193,4 +193,23 @@
     });
   }
 
+  /* ---------------------------------------------------------------
+     Background video, with a static-per-loop animated WebP as the
+     fallback -- video only for users it'll actually play for. Some
+     OS-level policies (iOS Low Power Mode is the common one) block
+     video autoplay outright, even muted, and no site code can override
+     that. Swap to the WebP immediately on failure rather than leaving
+     a frozen video poster frame while waiting on a user gesture.
+     --------------------------------------------------------------- */
+  var bgVideo = document.querySelector(".bg-video");
+  var bgFallback = document.querySelector(".bg-fallback");
+  if (bgVideo) {
+    var playPromise = bgVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function () {
+        bgVideo.hidden = true;
+        if (bgFallback) bgFallback.hidden = false;
+      });
+    }
+  }
 })();
