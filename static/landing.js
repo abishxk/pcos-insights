@@ -193,34 +193,4 @@
     });
   }
 
-  /* ---------------------------------------------------------------
-     Nudge the background video to play (autoplay + muted should be
-     enough, but some browsers need the explicit call)
-     --------------------------------------------------------------- */
-  var video = document.querySelector(".bg-video");
-  if (video) {
-    var playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(function () {
-        // Blocked at the OS level (e.g. iOS Low Power Mode disables
-        // autoplay even for muted video), not something playsinline/
-        // autoplay can override. But that block is specifically on
-        // *autoplay* -- a play() call made from inside a real user
-        // gesture is still allowed. .bg-video is pointer-events:none
-        // (taps need to reach the nav/content on top of it), so it
-        // can't be "tap the video specifically" -- retry on the very
-        // first tap/click anywhere on the page instead. If that still
-        // fails (video genuinely can't play), fall back to hiding it
-        // rather than leaving a dead, unclickable play icon on screen.
-        var resume = function () {
-          var retry = video.play();
-          if (retry && typeof retry.catch === "function") {
-            retry.catch(function () { video.style.display = "none"; });
-          }
-        };
-        document.addEventListener("pointerdown", resume, { once: true, passive: true });
-        document.addEventListener("touchstart", resume, { once: true, passive: true });
-      });
-    }
-  }
 })();
